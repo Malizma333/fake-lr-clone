@@ -20,7 +20,8 @@ const KeyframeLR = (function() {
   };
 
   const MOVE_STATE = {
-    speed: 10,
+    speed: 0,
+    previousRotation: 0,
     rotation: 0,
     turn: 0
   };
@@ -101,11 +102,11 @@ const KeyframeLR = (function() {
     const FRAMES = store.getState().simulator.engine.engine._computed._frames;
     const RIDER_POINTS = FRAMES[FRAMES.length-1].snapshot.entities[0].entities[0].points;
     const CURRENT_POINT = RIDER_POINTS[GRAVITY.currentPointIndex];
-    console.log(CURRENT_POINT);
 
     if(CURRENT_POINT.type === 'FlutterPoint') return GRAVITY.DEFAULT;
 
     if(GRAVITY.currentPointIndex === 0) {
+      MOVE_STATE.previousRotation = MOVE_STATE.rotation;
       if(CONTROLS.SPEED_UP.state === 1) MOVE_STATE.speed += MOVE_PARAMS.DELTA_SPEED;
       if(CONTROLS.SPEED_DOWN.state === 1) MOVE_STATE.speed -= MOVE_PARAMS.DELTA_SPEED;
       if(CONTROLS.ROTATE_LEFT.state === 1) MOVE_STATE.rotation += MOVE_PARAMS.DELTA_ROTATE;
@@ -114,9 +115,18 @@ const KeyframeLR = (function() {
       if(CONTROLS.TURN_RIGHT.state === 1) MOVE_STATE.turn -= MOVE_PARAMS.DELTA_TURN;
     }
 
-    const CANCEL_MOMENTUM = {
-      x: CURRENT_POINT.vel.x,
-      y: CURRENT_POINT.vel.y
+    const ROTATION_CHANGE = MOVE_STATE.rotation - MOVE_STATE.previousRotation;
+    const CENTERED_POINT = {
+      x: CURRENT_POINT.pos.x - RIDER_POINTS[0].pos.x,
+      y: CURRENT_POINT.pos.y - RIDER_POINTS[0].pos.y
+    };
+    const ROTATED_POINT = {
+      x: CENTERED_POINT.x * Math.cos(ROTATION_CHANGE) - CENTERED_POINT.y * Math.sin(ROTATION_CHANGE),
+      y: CENTERED_POINT.x * Math.sin(ROTATION_CHANGE) + CENTERED_POINT.y * Math.cos(ROTATION_CHANGE)
+    };
+    const TRANSFORMED_POINT = {
+      x: ROTATED_POINT.x + RIDER_POINTS[0].pos.x,
+      y: ROTATED_POINT.y + RIDER_POINTS[0].pos.y
     };
 
     const NEW_VELOCITY = {
@@ -125,11 +135,9 @@ const KeyframeLR = (function() {
     };
 
     const NEW_GRAVITY = {
-      x: NEW_VELOCITY.x - CANCEL_MOMENTUM.x,
-      y: NEW_VELOCITY.y - CANCEL_MOMENTUM.y
+      x: NEW_VELOCITY.x - CURRENT_POINT.vel.x + TRANSFORMED_POINT.x - CURRENT_POINT.pos.x,
+      y: NEW_VELOCITY.y - CURRENT_POINT.vel.y + TRANSFORMED_POINT.y - CURRENT_POINT.pos.y
     };
-
-    console.log(NEW_GRAVITY);
 
     return NEW_GRAVITY;
   } catch(e) {console.error(e);} }});

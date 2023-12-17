@@ -1,10 +1,8 @@
 window.store.getState().camera.playbackFollower._frames.length = 0;
 window.store.getState().simulator.engine.engine._computed._frames.length = 1;
 window.store.dispatch({ type: "SET_PLAYER_STOP_AT_END", payload: false });
-window.store.dispatch({ type: "SET_PLAYER_MAX_INDEX", payload: 1 });
 window.store.dispatch({ type: 'SET_PLAYBACK_DIMENSIONS', payload: {width:1920, height:1080} });
 window.store.dispatch({ type: 'SET_VIEW_OPTION', payload: {key: 'playbackPreview', value: true} });
-window.store.dispatch({ type: 'SET_AUDIO_OFFSET', payload: 0 });
 window.store.dispatch({ type: 'SET_INTERPOLATE', payload: false });
 const KeyframeLR = (function() {
   const ONE_DEGREE = 0.0174532925;
@@ -106,6 +104,23 @@ const KeyframeLR = (function() {
     if(CURRENT_POINT.type === 'FlutterPoint') return GRAVITY.DEFAULT;
 
     if(GRAVITY.currentPointIndex === 0) {
+      const HYPOTONUSE = Math.hypot(CURRENT_POINT.vel.x, CURRENT_POINT.vel.y);
+      const NORMAL_VELOCITY = {
+        x: CURRENT_POINT.vel.x / HYPOTONUSE,
+        y: CURRENT_POINT.vel.y / HYPOTONUSE
+      }
+      const VECTOR = {
+        x1: CURRENT_POINT.pos.x + NORMAL_VELOCITY.x,
+        y1: CURRENT_POINT.pos.y + NORMAL_VELOCITY.y,
+        x2: CURRENT_POINT.pos.x - NORMAL_VELOCITY.x,
+        y2: CURRENT_POINT.pos.y - NORMAL_VELOCITY.y
+      }
+      window.store.dispatch({
+        type: "UPDATE_LINES",
+        payload: { linesToAdd: [{...VECTOR, type: 2}], initialLoad: false },
+        meta: { name: "ADD_LINE" }
+      });
+
       MOVE_STATE.previousRotation = MOVE_STATE.rotation;
       if(CONTROLS.SPEED_UP.state === 1) MOVE_STATE.speed += MOVE_PARAMS.DELTA_SPEED;
       if(CONTROLS.SPEED_DOWN.state === 1) MOVE_STATE.speed -= MOVE_PARAMS.DELTA_SPEED;
@@ -140,5 +155,46 @@ const KeyframeLR = (function() {
     };
 
     return NEW_GRAVITY;
-  } catch(e) {console.error(e);} }});
+  } catch(e) { console.error(e); return GRAVITY.ZERO; } }});
+
+  let playerWasRunning = false;
+
+  function subscribe(
+    store = window.store,
+    select = (state) => state,
+    notify = () => {}
+  ) {
+    let state;
+  
+    function subscription() {
+      const update = select(store.getState());
+      if (update !== state) {
+        state = update;
+        notify(state);
+      }
+    }
+  
+    const unsubscribe = store.subscribe(subscription);
+    subscription();
+    return unsubscribe;
+  }
+  
+  const unsubscribeFromPlayer = subscribe(
+    window.store,
+    ({ player: { running } }) => running,
+    (playing) => {
+      if(!playing && playerWasRunning) {
+        const FRAMES = window.store.getState().simulator.engine.engine._computed._frames;
+        window.store.dispatch({type: "COMMIT_TRACK_CHANGES"});
+        window.store.dispatch({ type: "SET_PLAYER_STOP_AT_END", payload: true });
+        window.store.dispatch({ type: "SET_PLAYER_MAX_INDEX", payload: FRAMES.length - 1 });
+      }
+
+      if(playing) {
+        playerWasRunning = true;
+      } else {
+        playerWasRunning = false;
+      }
+    }
+  );
 })();

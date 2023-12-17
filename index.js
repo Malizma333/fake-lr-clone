@@ -5,7 +5,6 @@ window.store.dispatch({ type: "SET_PLAYER_MAX_INDEX", payload: 0 });
 window.store.dispatch({ type: 'SET_PLAYBACK_DIMENSIONS', payload: {width:1920, height:1080} });
 window.store.dispatch({ type: 'SET_VIEW_OPTION', payload: {key: 'playbackPreview', value: true} });
 window.store.dispatch({ type: 'SET_INTERPOLATE', payload: false });
-window.store.dispatch({ type: "SET_PLAYER_SETTINGS", payload: {baseRate: 0.8} })
 const KeyframeLR = (function() {
   const ONE_DEGREE = 0.0174532925;
 
@@ -15,8 +14,7 @@ const KeyframeLR = (function() {
     TURN_LEFT: {KEY: 'a', state: 0},
     TURN_RIGHT: {KEY: 'd', state: 0},
     ROTATE_LEFT: {KEY: 'ArrowLeft', state: 0},
-    ROTATE_RIGHT: {KEY: 'ArrowRight', state: 0},
-    SNAP: {KEY: 'Shift', state: 0}
+    ROTATE_RIGHT: {KEY: 'ArrowRight', state: 0}
   };
 
   const MOVE_STATE = {
@@ -28,9 +26,8 @@ const KeyframeLR = (function() {
 
   const MOVE_PARAMS = {
     DELTA_SPEED: 0.125,
-    DELTA_ROTATE: 10*ONE_DEGREE,
-    DELTA_TURN: 10*ONE_DEGREE,
-    SNAP_ANGLE: 90*ONE_DEGREE
+    DELTA_ROTATE: -10*ONE_DEGREE,
+    DELTA_TURN: -10*ONE_DEGREE
   }
 
   const GRAVITY = {
@@ -60,9 +57,6 @@ const KeyframeLR = (function() {
       case CONTROLS.ROTATE_RIGHT.KEY:
         CONTROLS.ROTATE_RIGHT.state = 1;
         break;
-      case CONTROLS.SNAP.KEY:
-        CONTROLS.SNAP.state = 1;
-        break;
       default:
         break;
     }
@@ -87,9 +81,6 @@ const KeyframeLR = (function() {
         break;
       case CONTROLS.ROTATE_RIGHT.KEY:
         CONTROLS.ROTATE_RIGHT.state = 0;
-        break;
-      case CONTROLS.SNAP.KEY:
-        CONTROLS.SNAP.state = 0;
         break;
       default:
         break;

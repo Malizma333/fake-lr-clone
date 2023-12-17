@@ -7,6 +7,8 @@ window.store.dispatch({ type: 'SET_VIEW_OPTION', payload: {key: 'playbackPreview
 window.store.dispatch({ type: 'SET_AUDIO_OFFSET', payload: 0 });
 window.store.dispatch({ type: 'SET_INTERPOLATE', payload: false });
 const KeyframeLR = (function() {
+  const ONE_DEGREE = 0.0174532925;
+
   const CONTROLS = {
     SPEED_UP: {KEY: 'w', state: 0},
     SPEED_DOWN: {KEY: 's', state: 0},
@@ -20,14 +22,20 @@ const KeyframeLR = (function() {
   const MOVE_STATE = {
     speed: 10,
     rotation: 0,
-    direction: 0
+    turn: 0
   };
+
+  const MOVE_PARAMS = {
+    DELTA_SPEED: 0.25,
+    DELTA_ROTATE: 5*ONE_DEGREE,
+    DELTA_TURN: 5*ONE_DEGREE
+  }
 
   const GRAVITY = {
     DEFAULT: {x:0, y:0.175},
     ZERO: {x:0, y:0},
-    currentSubframe: 0,
-    currentPointIndex: 0
+    currentSubframe: -1,
+    currentPointIndex: -1
   }
 
   document.addEventListener('keydown', (event) => {
@@ -86,24 +94,43 @@ const KeyframeLR = (function() {
     }
   }, false);
 
-  Object.defineProperty(window.$ENGINE_PARAMS, "gravity", { get() {
-    try {
-      GRAVITY.currentSubframe += 1;
-      GRAVITY.currentPointIndex = GRAVITY.currentSubframe % 17;
+  Object.defineProperty(window.$ENGINE_PARAMS, "gravity", { get() { try {
+    GRAVITY.currentSubframe += 1;
+    GRAVITY.currentPointIndex = GRAVITY.currentSubframe % 17;
 
-      if(GRAVITY.currentPointIndex > 10) return GRAVITY.DEFAULT;
+    const FRAMES = store.getState().simulator.engine.engine._computed._frames;
+    const RIDER_POINTS = FRAMES[FRAMES.length-1].snapshot.entities[0].entities[0].points;
+    const CURRENT_POINT = RIDER_POINTS[GRAVITY.currentPointIndex];
+    console.log(CURRENT_POINT);
 
-      const frames = store.getState().simulator.engine.engine._computed._frames;
-      const riderPoints = frames[frames.length-1].snapshot.entities[0].entities[0].points;
-      const currentPoint = riderPoints[GRAVITY.currentPointIndex];
-      const velocityCancel = {
-        x: currentPoint.pos.x + currentPoint.vel.x,
-        y: currentPoint.pos.y + currentPoint.vel.y
-      };
+    if(CURRENT_POINT.type === 'FlutterPoint') return GRAVITY.DEFAULT;
 
-      return GRAVITY.ZERO;
-    } catch(e) {
-      console.error(e);
+    if(GRAVITY.currentPointIndex === 0) {
+      if(CONTROLS.SPEED_UP.state === 1) MOVE_STATE.speed += MOVE_PARAMS.DELTA_SPEED;
+      if(CONTROLS.SPEED_DOWN.state === 1) MOVE_STATE.speed -= MOVE_PARAMS.DELTA_SPEED;
+      if(CONTROLS.ROTATE_LEFT.state === 1) MOVE_STATE.rotation += MOVE_PARAMS.DELTA_ROTATE;
+      if(CONTROLS.ROTATE_RIGHT.state === 1) MOVE_STATE.rotation -= MOVE_PARAMS.DELTA_ROTATE;
+      if(CONTROLS.TURN_LEFT.state === 1) MOVE_STATE.turn += MOVE_PARAMS.DELTA_TURN;
+      if(CONTROLS.TURN_RIGHT.state === 1) MOVE_STATE.turn -= MOVE_PARAMS.DELTA_TURN;
     }
-  }});
+
+    const CANCEL_MOMENTUM = {
+      x: CURRENT_POINT.vel.x,
+      y: CURRENT_POINT.vel.y
+    };
+
+    const NEW_VELOCITY = {
+      x: MOVE_STATE.speed * Math.cos(MOVE_STATE.turn),
+      y: MOVE_STATE.speed * Math.sin(MOVE_STATE.turn)
+    };
+
+    const NEW_GRAVITY = {
+      x: NEW_VELOCITY.x - CANCEL_MOMENTUM.x,
+      y: NEW_VELOCITY.y - CANCEL_MOMENTUM.y
+    };
+
+    console.log(NEW_GRAVITY);
+
+    return NEW_GRAVITY;
+  } catch(e) {console.error(e);} }});
 })();

@@ -110,10 +110,10 @@ const KeyframeLR = (function() {
         y: CURRENT_POINT.vel.y / HYPOTONUSE
       }
       const VECTOR = {
-        x1: CURRENT_POINT.pos.x + NORMAL_VELOCITY.x,
-        y1: CURRENT_POINT.pos.y + NORMAL_VELOCITY.y,
-        x2: CURRENT_POINT.pos.x - NORMAL_VELOCITY.x,
-        y2: CURRENT_POINT.pos.y - NORMAL_VELOCITY.y
+        x1: CURRENT_POINT.pos.x + 2 * NORMAL_VELOCITY.x,
+        y1: CURRENT_POINT.pos.y + 2 * NORMAL_VELOCITY.y,
+        x2: CURRENT_POINT.pos.x - 2 * NORMAL_VELOCITY.x,
+        y2: CURRENT_POINT.pos.y - 2 * NORMAL_VELOCITY.y
       }
       window.store.dispatch({
         type: "UPDATE_LINES",

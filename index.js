@@ -18,7 +18,7 @@ const KeyframeLR = (function() {
   };
 
   const MOVE_STATE = {
-    speed: 0,
+    speed: 10,
     previousRotation: 0,
     rotation: 0,
     turn: 0
@@ -117,7 +117,7 @@ const KeyframeLR = (function() {
 
       MOVE_STATE.previousRotation = MOVE_STATE.rotation;
       if(CONTROLS.SPEED_UP.state === 1) MOVE_STATE.speed += MOVE_PARAMS.DELTA_SPEED;
-      if(CONTROLS.SPEED_DOWN.state === 1) MOVE_STATE.speed -= MOVE_PARAMS.DELTA_SPEED;
+      if(CONTROLS.SPEED_DOWN.state === 1) MOVE_STATE.speed -= 4*MOVE_PARAMS.DELTA_SPEED;
       if(CONTROLS.ROTATE_LEFT.state === 1) MOVE_STATE.rotation += MOVE_PARAMS.DELTA_ROTATE;
       if(CONTROLS.ROTATE_RIGHT.state === 1) MOVE_STATE.rotation -= MOVE_PARAMS.DELTA_ROTATE;
       if(CONTROLS.TURN_LEFT.state === 1) MOVE_STATE.turn += MOVE_PARAMS.DELTA_TURN;

@@ -33,15 +33,14 @@ setCustomRiders([
 `])
 
 const KeyframeLR = (function() {
+  const TRAIL_ENABLED = true;
   const ONE_DEGREE = 0.0174532925;
 
   const CONTROLS = {
     SPEED_UP: {KEY: 'w', state: 0},
     SPEED_DOWN: {KEY: 's', state: 0},
     TURN_LEFT: {KEY: 'a', state: 0},
-    TURN_RIGHT: {KEY: 'd', state: 0},
-    ROTATE_LEFT: {KEY: 'ArrowLeft', state: 0},
-    ROTATE_RIGHT: {KEY: 'ArrowRight', state: 0}
+    TURN_RIGHT: {KEY: 'd', state: 0}
   };
 
   const MOVE_STATE = {
@@ -78,12 +77,6 @@ const KeyframeLR = (function() {
       case CONTROLS.TURN_RIGHT.KEY:
         CONTROLS.TURN_RIGHT.state = 1;
         break;
-      case CONTROLS.ROTATE_LEFT.KEY:
-        CONTROLS.ROTATE_LEFT.state = 1;
-        break;
-      case CONTROLS.ROTATE_RIGHT.KEY:
-        CONTROLS.ROTATE_RIGHT.state = 1;
-        break;
       default:
         break;
     }
@@ -102,12 +95,6 @@ const KeyframeLR = (function() {
         break;
       case CONTROLS.TURN_RIGHT.KEY:
         CONTROLS.TURN_RIGHT.state = 0;
-        break;
-      case CONTROLS.ROTATE_LEFT.KEY:
-        CONTROLS.ROTATE_LEFT.state = 0;
-        break;
-      case CONTROLS.ROTATE_RIGHT.KEY:
-        CONTROLS.ROTATE_RIGHT.state = 0;
         break;
       default:
         break;
@@ -136,17 +123,20 @@ const KeyframeLR = (function() {
         x2: CURRENT_POINT.pos.x - 2 * NORMAL_VELOCITY.x,
         y2: CURRENT_POINT.pos.y - 2 * NORMAL_VELOCITY.y
       }
-      window.store.dispatch({
-        type: "UPDATE_LINES",
-        payload: { linesToAdd: [{...VECTOR, type: 2}], initialLoad: false },
-        meta: { name: "ADD_LINE" }
-      });
+      
+      if(TRAIL_ENABLED) {
+        window.store.dispatch({
+          type: "UPDATE_LINES",
+          payload: { linesToAdd: [{...VECTOR, type: 2}], initialLoad: false },
+          meta: { name: "ADD_LINE" }
+        });
+      }
 
       MOVE_STATE.previousRotation = MOVE_STATE.rotation;
       if(CONTROLS.SPEED_UP.state === 1) MOVE_STATE.speed += MOVE_PARAMS.DELTA_SPEED;
       if(CONTROLS.SPEED_DOWN.state === 1) MOVE_STATE.speed -= 4*MOVE_PARAMS.DELTA_SPEED;
-      if(CONTROLS.ROTATE_LEFT.state === 1) MOVE_STATE.rotation += MOVE_PARAMS.DELTA_ROTATE;
-      if(CONTROLS.ROTATE_RIGHT.state === 1) MOVE_STATE.rotation -= MOVE_PARAMS.DELTA_ROTATE;
+      if(CONTROLS.TURN_LEFT.state === 1) MOVE_STATE.rotation += MOVE_PARAMS.DELTA_ROTATE;
+      if(CONTROLS.TURN_RIGHT.state === 1) MOVE_STATE.rotation -= MOVE_PARAMS.DELTA_ROTATE;
       if(CONTROLS.TURN_LEFT.state === 1) MOVE_STATE.turn += MOVE_PARAMS.DELTA_TURN;
       if(CONTROLS.TURN_RIGHT.state === 1) MOVE_STATE.turn -= MOVE_PARAMS.DELTA_TURN;
     }

@@ -8,23 +8,28 @@ window.store.dispatch({ type: 'SET_INTERPOLATE', payload: false });
 
 const FakeLRClone = (function() {
   const USER_PARAMS = {
+    // Preferences
     CAR_COLOR: 'green', // Color of the car
-    INIT_ZOOM: 3.5, // Initial zoom of the camera
-    MIN_ZOOM: 0, // Minimum camera zoom
-    MAX_ZOOM: 5, // Maximum camera zoom
-    ZOOM_CHANGE: 0.1, // How fast camera zooms in and out
-    INIT_SPEED: 0, // Initial speed of the car
-    MIN_SPEED: 0, // Minimum car speed
-    MAX_SPEED: 25, // Maximum car speed
-    INIT_ROTATION: 0, // Rotation of the car at the start (degrees)
-    ROTATION_CHANGE: 10, // How fast the car rotates (degrees)
-    MIN_ROTATION: -20, // Minimum drift offset from going straight
-    MAX_ROTATION: 20, // Maximum drift offset from going straight
-    INIT_DIRECTION: 0, // Direction that the car is facing at the start (degrees)
-    DIRECTION_CHANGE: 10, // How fast the car turns (degrees)
-    ACCELERATION: 0.125, // How fast the rider speeds up
-    DECELERATION: 0.5, // How fast the rider slows down
     TRAIL_ENABLED: true, // Whether the trail is enabled
+    // Zoom
+    INIT_ZOOM: 3.5,
+    MIN_ZOOM: 0,
+    MAX_ZOOM: 5,
+    ZOOM_CHANGE: 0.1,
+    // Moving
+    INIT_SPEED: 0,
+    MIN_SPEED: 0,
+    MAX_SPEED: 25,
+    ACCELERATION: 0.125,
+    DECELERATION: 0.5,
+    // Turning
+    INIT_DIRECTION: 0,
+    DIRECTION_CHANGE: 10,
+    // Drift
+    INIT_ROTATION: 0,
+    MIN_ROTATION: -20,
+    MAX_ROTATION: 20,
+    ROTATION_CHANGE: 10,
     // Keybindings
     SPEED_UP_KEY: 'w',
     SPEED_DOWN_KEY: 's',

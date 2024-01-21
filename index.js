@@ -7,8 +7,7 @@ window.store.dispatch({ type: 'SET_VIEW_OPTION', payload: {key: 'playbackPreview
 window.store.dispatch({ type: 'SET_INTERPOLATE', payload: false });
 getAutoZoom = createZoomer([[0, 3]])
 
-setCustomRiders([
-  `.torso{fill:red;stroke-width:0;transform:translate(0.2px,0px)scale(0.6,1.7);rx:1.5}
+setCustomRiders([`
   .flag{opacity:0;}
   .skin{opacity:0;}
   .hair{opacity:0;}
@@ -21,15 +20,16 @@ setCustomRiders([
   .sled{opacity:0;}
   .scarfEven{opacity:0;}
   .scarfOdd{opacity:0;}
-  .scarf1{opacity:1;rx:0.3;fill:cyan;transform:translate(-3.75px,0.5px);}
-  .scarf2{opacity:1;fill:black;transform:translate(-3.75px,0.5px)scale(1,0.1);}
-  .scarf3{opacity:1;fill:black;transform:translate(-3.75px,0.2px)scale(1,0.1);}
-  .scarf4{opacity:1;fill:black;transform:translate(-3.75px,-0.1px)scale(1,0.1);}
-  .scarf5{opacity:1;rx:0.3;fill:cyan;transform:translate(-3.75px,-1px)scale(1,0.8);}
-  #scarf1{opacity:1;rx:1;fill:black;width:1px;transform:translate(0px,-17.5px);}
-  #scarf2{opacity:1;rx:1;fill:black;width:1px;transform:translate(-1px,-27.5px);}
-  #scarf3{opacity:1;rx:1;fill:black;width:1px;transform:translate(0px,-27.5px);}
-  #scarf4{opacity:1;rx:1;fill:black;width:1px;transform:translate(-1px,-27.5px);}
+  .torso{fill:red;stroke-width:0;transform:translate(3.2px,0px)scale(0.6,1.7);rx:1.5}
+  .scarf1{opacity:1;rx:0.3;fill:cyan;transform:translate(-0.75px,0.5px);}
+  .scarf2{opacity:1;fill:black;transform:translate(-0.75px,0.5px)scale(1,0.1);}
+  .scarf3{opacity:1;fill:black;transform:translate(-0.75px,0.2px)scale(1,0.1);}
+  .scarf4{opacity:1;fill:black;transform:translate(-0.75px,-0.1px)scale(1,0.1);}
+  .scarf5{opacity:1;rx:0.3;fill:cyan;transform:translate(-0.75px,-1px)scale(1,0.8);}
+  #scarf1{opacity:1;rx:1;fill:black;width:1px;transform:translate(3px,-17.5px);}
+  #scarf2{opacity:1;rx:1;fill:black;width:1px;transform:translate(2px,-27.5px);}
+  #scarf3{opacity:1;rx:1;fill:black;width:1px;transform:translate(3px,-27.5px);}
+  #scarf4{opacity:1;rx:1;fill:black;width:1px;transform:translate(2px,-27.5px);}
 `])
 
 const KeyframeLR = (function() {
@@ -157,16 +157,16 @@ const KeyframeLR = (function() {
 
     const ROTATION_CHANGE = MOVE_STATE.rotation - MOVE_STATE.previousRotation;
     const CENTERED_POINT = {
-      x: CURRENT_POINT.pos.x - RIDER_POINTS[4].pos.x,
-      y: CURRENT_POINT.pos.y - RIDER_POINTS[4].pos.y
+      x: CURRENT_POINT.pos.x - RIDER_POINTS[5].pos.x,
+      y: CURRENT_POINT.pos.y - RIDER_POINTS[5].pos.y
     };
     const ROTATED_POINT = {
       x: CENTERED_POINT.x * Math.cos(ROTATION_CHANGE) - CENTERED_POINT.y * Math.sin(ROTATION_CHANGE),
       y: CENTERED_POINT.x * Math.sin(ROTATION_CHANGE) + CENTERED_POINT.y * Math.cos(ROTATION_CHANGE)
     };
     const TRANSFORMED_POINT = {
-      x: ROTATED_POINT.x + RIDER_POINTS[4].pos.x,
-      y: ROTATED_POINT.y + RIDER_POINTS[4].pos.y
+      x: ROTATED_POINT.x + RIDER_POINTS[5].pos.x,
+      y: ROTATED_POINT.y + RIDER_POINTS[5].pos.y
     };
 
     const NEW_VELOCITY = {

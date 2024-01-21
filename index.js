@@ -52,7 +52,9 @@ const KeyframeLR = (function() {
   };
 
   const MOVE_PARAMS = {
-    DELTA_SPEED: 0.125,
+    ACCELERATION: 0.125,
+    DECELERATION: 0.5,
+    MIN_SPEED: 0,
     DELTA_ROTATE: -10*ONE_DEGREE,
     DELTA_TURN: -10*ONE_DEGREE
   }
@@ -142,12 +144,22 @@ const KeyframeLR = (function() {
       }
 
       MOVE_STATE.previousRotation = MOVE_STATE.rotation;
-      if(CONTROLS.SPEED_UP.state === 1) MOVE_STATE.speed += MOVE_PARAMS.DELTA_SPEED;
-      if(CONTROLS.SPEED_DOWN.state === 1) MOVE_STATE.speed -= 4*MOVE_PARAMS.DELTA_SPEED;
-      if(CONTROLS.TURN_LEFT.state === 1) MOVE_STATE.rotation += MOVE_PARAMS.DELTA_ROTATE;
-      if(CONTROLS.TURN_RIGHT.state === 1) MOVE_STATE.rotation -= MOVE_PARAMS.DELTA_ROTATE;
-      if(CONTROLS.TURN_LEFT.state === 1) MOVE_STATE.turn += MOVE_PARAMS.DELTA_TURN;
-      if(CONTROLS.TURN_RIGHT.state === 1) MOVE_STATE.turn -= MOVE_PARAMS.DELTA_TURN;
+      if(CONTROLS.SPEED_UP.state === 1) {
+        MOVE_STATE.speed += MOVE_PARAMS.ACCELERATION;
+      }
+      if(CONTROLS.SPEED_DOWN.state === 1) {
+        MOVE_STATE.speed = Math.max(
+          MOVE_PARAMS.MIN_SPEED, MOVE_STATE.speed - MOVE_PARAMS.DECELERATION
+        );
+      }
+      if(CONTROLS.TURN_LEFT.state === 1) {
+        MOVE_STATE.rotation += MOVE_PARAMS.DELTA_ROTATE;
+        MOVE_STATE.turn += MOVE_PARAMS.DELTA_TURN;
+      }
+      if(CONTROLS.TURN_RIGHT.state === 1) {
+        MOVE_STATE.rotation -= MOVE_PARAMS.DELTA_ROTATE;
+        MOVE_STATE.turn -= MOVE_PARAMS.DELTA_TURN;
+      }
     }
 
     const ROTATION_CHANGE = MOVE_STATE.rotation - MOVE_STATE.previousRotation;

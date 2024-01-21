@@ -6,7 +6,7 @@ window.store.dispatch({ type: 'SET_PLAYBACK_DIMENSIONS', payload: {width:1920, h
 window.store.dispatch({ type: 'SET_VIEW_OPTION', payload: {key: 'playbackPreview', value: true} });
 window.store.dispatch({ type: 'SET_INTERPOLATE', payload: false });
 
-const KeyframeLR = (function() {
+const FakeLRClone = (function() {
   const USER_PARAMS = {
     CAR_COLOR: 'green', // Color of the car
     INIT_ZOOM: 3.5, // Initial zoom of the camera

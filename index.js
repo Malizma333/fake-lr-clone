@@ -41,13 +41,16 @@ const KeyframeLR = (function() {
     SPEED_UP: {KEY: 'w', state: 0},
     SPEED_DOWN: {KEY: 's', state: 0},
     TURN_LEFT: {KEY: 'a', state: 0},
-    TURN_RIGHT: {KEY: 'd', state: 0}
+    TURN_RIGHT: {KEY: 'd', state: 0},
+    ROTATE_LEFT: {KEY: 'ArrowLeft', state: 0},
+    ROTATE_RIGHT: {KEY: 'ArrowRight', state: 0}
   };
 
   const MOVE_STATE = {
     speed: 10,
     previousRotation: 0,
-    rotation: 0,
+    base_rotation: 0,
+    offset_rotation: 0,
     turn: 0
   };
 
@@ -81,6 +84,12 @@ const KeyframeLR = (function() {
       case CONTROLS.TURN_RIGHT.KEY:
         CONTROLS.TURN_RIGHT.state = 1;
         break;
+      case CONTROLS.ROTATE_LEFT.KEY:
+        CONTROLS.ROTATE_LEFT.state = 1;
+        break;
+      case CONTROLS.ROTATE_RIGHT.KEY:
+        CONTROLS.ROTATE_RIGHT.state = 1;
+        break;
       default:
         break;
     }
@@ -99,6 +108,12 @@ const KeyframeLR = (function() {
         break;
       case CONTROLS.TURN_RIGHT.KEY:
         CONTROLS.TURN_RIGHT.state = 0;
+        break;
+      case CONTROLS.ROTATE_LEFT.KEY:
+        CONTROLS.ROTATE_LEFT.state = 0;
+        break;
+      case CONTROLS.ROTATE_RIGHT.KEY:
+        CONTROLS.ROTATE_RIGHT.state = 0;
         break;
       default:
         break;
@@ -144,7 +159,7 @@ const KeyframeLR = (function() {
         });
       }
 
-      MOVE_STATE.previousRotation = MOVE_STATE.rotation;
+      MOVE_STATE.previousRotation = MOVE_STATE.base_rotation + MOVE_STATE.offset_rotation;
       if(CONTROLS.SPEED_UP.state === 1) {
         MOVE_STATE.speed = Math.min(
           MOVE_PARAMS.MAX_SPEED, MOVE_STATE.speed + MOVE_PARAMS.ACCELERATION
@@ -156,16 +171,22 @@ const KeyframeLR = (function() {
         );
       }
       if(CONTROLS.TURN_LEFT.state === 1) {
-        MOVE_STATE.rotation += MOVE_PARAMS.DELTA_ROTATE;
+        MOVE_STATE.base_rotation += MOVE_PARAMS.DELTA_ROTATE;
         MOVE_STATE.turn += MOVE_PARAMS.DELTA_TURN;
       }
       if(CONTROLS.TURN_RIGHT.state === 1) {
-        MOVE_STATE.rotation -= MOVE_PARAMS.DELTA_ROTATE;
+        MOVE_STATE.base_rotation -= MOVE_PARAMS.DELTA_ROTATE;
         MOVE_STATE.turn -= MOVE_PARAMS.DELTA_TURN;
+      }
+      if(CONTROLS.ROTATE_RIGHT.state === 1) {
+        MOVE_STATE.offset_rotation += MOVE_PARAMS.DELTA_ROTATE;
+      }
+      if(CONTROLS.ROTATE_LEFT.state === 1) {
+        MOVE_STATE.offset_rotation -= MOVE_PARAMS.DELTA_ROTATE;
       }
     }
 
-    const ROTATION_CHANGE = MOVE_STATE.rotation - MOVE_STATE.previousRotation;
+    const ROTATION_CHANGE = MOVE_STATE.base_rotation + MOVE_STATE.offset_rotation - MOVE_STATE.previousRotation;
     const CENTERED_POINT = {
       x: CURRENT_POINT.pos.x - RIDER_POINTS[5].pos.x,
       y: CURRENT_POINT.pos.y - RIDER_POINTS[5].pos.y

@@ -113,22 +113,36 @@ const KeyframeLR = (function() {
 
     if(GRAVITY.currentPointIndex === 0) {
       const HYPOTONUSE = Math.hypot(CURRENT_POINT.vel.x, CURRENT_POINT.vel.y);
+      const PERP_ANGLE = Math.atan2(CURRENT_POINT.vel.y, CURRENT_POINT.vel.x) + Math.PI / 2;
       const NORMAL_VELOCITY = {
         x: CURRENT_POINT.vel.x / HYPOTONUSE,
         y: CURRENT_POINT.vel.y / HYPOTONUSE
       }
-      const VECTOR = {
-        x1: CURRENT_POINT.pos.x + 2 * NORMAL_VELOCITY.x,
-        y1: CURRENT_POINT.pos.y + 2 * NORMAL_VELOCITY.y,
-        x2: CURRENT_POINT.pos.x - 2 * NORMAL_VELOCITY.x,
-        y2: CURRENT_POINT.pos.y - 2 * NORMAL_VELOCITY.y
+      // const VECTOR = {
+      //   x1: CURRENT_POINT.pos.x - 2.35 * Math.cos(PERP_ANGLE) + 2 * NORMAL_VELOCITY.x,
+      //   y1: CURRENT_POINT.pos.y - 2.35 * Math.sin(PERP_ANGLE) + 2 * NORMAL_VELOCITY.y,
+      //   x2: CURRENT_POINT.pos.x - 2.35 * Math.cos(PERP_ANGLE),
+      //   y2: CURRENT_POINT.pos.y - 2.35 * Math.sin(PERP_ANGLE)
+      // }
+
+      const VECTOR_A = {
+        x1: CURRENT_POINT.pos.x - 4.55 * Math.cos(PERP_ANGLE) + 2 * NORMAL_VELOCITY.x,
+        y1: CURRENT_POINT.pos.y - 4.55 * Math.sin(PERP_ANGLE) + 2 * NORMAL_VELOCITY.y,
+        x2: CURRENT_POINT.pos.x - 4.55 * Math.cos(PERP_ANGLE),
+        y2: CURRENT_POINT.pos.y - 4.55 * Math.sin(PERP_ANGLE)
+      }
+      const VECTOR_B = {
+        x1: CURRENT_POINT.pos.x - 0.15 * Math.cos(PERP_ANGLE) + 2 * NORMAL_VELOCITY.x,
+        y1: CURRENT_POINT.pos.y - 0.15 * Math.sin(PERP_ANGLE) + 2 * NORMAL_VELOCITY.y,
+        x2: CURRENT_POINT.pos.x - 0.15 * Math.cos(PERP_ANGLE),
+        y2: CURRENT_POINT.pos.y - 0.15 * Math.sin(PERP_ANGLE)
       }
       
       if(TRAIL_ENABLED) {
         window.store.dispatch({
           type: "UPDATE_LINES",
-          payload: { linesToAdd: [{...VECTOR, type: 2}], initialLoad: false },
-          meta: { name: "ADD_LINE" }
+          payload: { linesToAdd: [{...VECTOR_A, type: 2}, {...VECTOR_B, type: 2}], initialLoad: false },
+          meta: { name: "ADD_LINES" }
         });
       }
 

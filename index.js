@@ -157,16 +157,16 @@ const KeyframeLR = (function() {
 
     const ROTATION_CHANGE = MOVE_STATE.rotation - MOVE_STATE.previousRotation;
     const CENTERED_POINT = {
-      x: CURRENT_POINT.pos.x - RIDER_POINTS[0].pos.x,
-      y: CURRENT_POINT.pos.y - RIDER_POINTS[0].pos.y
+      x: CURRENT_POINT.pos.x - RIDER_POINTS[4].pos.x,
+      y: CURRENT_POINT.pos.y - RIDER_POINTS[4].pos.y
     };
     const ROTATED_POINT = {
       x: CENTERED_POINT.x * Math.cos(ROTATION_CHANGE) - CENTERED_POINT.y * Math.sin(ROTATION_CHANGE),
       y: CENTERED_POINT.x * Math.sin(ROTATION_CHANGE) + CENTERED_POINT.y * Math.cos(ROTATION_CHANGE)
     };
     const TRANSFORMED_POINT = {
-      x: ROTATED_POINT.x + RIDER_POINTS[0].pos.x,
-      y: ROTATED_POINT.y + RIDER_POINTS[0].pos.y
+      x: ROTATED_POINT.x + RIDER_POINTS[4].pos.x,
+      y: ROTATED_POINT.y + RIDER_POINTS[4].pos.y
     };
 
     const NEW_VELOCITY = {

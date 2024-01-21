@@ -5,7 +5,8 @@ window.store.dispatch({ type: "SET_PLAYER_MAX_INDEX", payload: 0 });
 window.store.dispatch({ type: 'SET_PLAYBACK_DIMENSIONS', payload: {width:1920, height:1080} });
 window.store.dispatch({ type: 'SET_VIEW_OPTION', payload: {key: 'playbackPreview', value: true} });
 window.store.dispatch({ type: 'SET_INTERPOLATE', payload: false });
-const KeyframeLR = (function() {
+
+const FakeLRClone = (function() {
   const ONE_DEGREE = 0.0174532925;
 
   const CONTROLS = {

@@ -6,34 +6,9 @@ window.store.dispatch({ type: 'SET_PLAYBACK_DIMENSIONS', payload: {width:1920, h
 window.store.dispatch({ type: 'SET_VIEW_OPTION', payload: {key: 'playbackPreview', value: true} });
 window.store.dispatch({ type: 'SET_INTERPOLATE', payload: false });
 
-setCustomRiders([`
-  .flag{opacity:0;}
-  .skin{opacity:0;}
-  .hair{opacity:0;}
-  .fill{opacity:0;}
-  #eye{opacity:0;}
-  #string{opacity:0;}
-  .hat{opacity:0}
-  .arm{opacity:0;}
-  .leg{opacity:0;}
-  .sled{opacity:0;}
-  .scarfEven{opacity:0;}
-  .scarfOdd{opacity:0;}
-  .torso{fill:red;stroke-width:0;transform:translate(3.2px,0px)scale(0.6,1.7);rx:1.5}
-  .scarf1{opacity:1;rx:0.3;fill:cyan;transform:translate(-0.75px,0.5px);}
-  .scarf2{opacity:1;fill:black;transform:translate(-0.75px,0.5px)scale(1,0.1);}
-  .scarf3{opacity:1;fill:black;transform:translate(-0.75px,0.2px)scale(1,0.1);}
-  .scarf4{opacity:1;fill:black;transform:translate(-0.75px,-0.1px)scale(1,0.1);}
-  .scarf5{opacity:1;rx:0.3;fill:cyan;transform:translate(-0.75px,-1px)scale(1,0.8);}
-  #scarf1{opacity:1;rx:1;fill:black;width:1px;transform:translate(3px,-17.5px);}
-  #scarf2{opacity:1;rx:1;fill:black;width:1px;transform:translate(2px,-27.5px);}
-  #scarf3{opacity:1;rx:1;fill:black;width:1px;transform:translate(3px,-27.5px);}
-  #scarf4{opacity:1;rx:1;fill:black;width:1px;transform:translate(2px,-27.5px);}
-  #scarf5{opacity:0;}
-`])
-
 const KeyframeLR = (function() {
   const USER_PARAMS = {
+    CAR_COLOR: 'green', // Color of the car
     INIT_ZOOM: 3.5, // Initial zoom of the camera
     MIN_ZOOM: 0, // Minimum camera zoom
     MAX_ZOOM: 5, // Maximum camera zoom
@@ -165,6 +140,22 @@ const KeyframeLR = (function() {
         break;
     }
   }, false);
+
+  setCustomRiders([`
+    .flag{opacity:0;}.skin{opacity:0;}.hair{opacity:0;}.fill{opacity:0;}#eye{opacity:0;}#string{opacity:0;}
+    .hat{opacity:0}.arm{opacity:0;}.leg{opacity:0;}.sled{opacity:0;}.scarfEven{opacity:0;}.scarfOdd{opacity:0;}
+    .torso{fill:${USER_PARAMS.CAR_COLOR};stroke-width:0;transform:translate(3.2px,0px)scale(0.6,1.7);rx:1.5}
+    .scarf1{opacity:1;rx:0.3;fill:cyan;transform:translate(-0.75px,0.5px);}
+    .scarf2{opacity:1;fill:black;transform:translate(-0.75px,0.5px)scale(1,0.1);}
+    .scarf3{opacity:1;fill:black;transform:translate(-0.75px,0.2px)scale(1,0.1);}
+    .scarf4{opacity:1;fill:black;transform:translate(-0.75px,-0.1px)scale(1,0.1);}
+    .scarf5{opacity:1;rx:0.3;fill:cyan;transform:translate(-0.75px,-1px)scale(1,0.8);}
+    #scarf1{opacity:1;rx:1;fill:black;width:1px;transform:translate(3px,-17.5px);}
+    #scarf2{opacity:1;rx:1;fill:black;width:1px;transform:translate(2px,-27.5px);}
+    #scarf3{opacity:1;rx:1;fill:black;width:1px;transform:translate(3px,-27.5px);}
+    #scarf4{opacity:1;rx:1;fill:black;width:1px;transform:translate(2px,-27.5px);}
+    #scarf5{opacity:0;}
+  `])
 
   Object.defineProperty(window.$ENGINE_PARAMS, "gravity", { get() { try {
     GRAVITY_PROPS.currentPointIndex = (GRAVITY_PROPS.currentPointIndex + 1) % 17;

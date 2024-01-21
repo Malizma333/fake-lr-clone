@@ -34,7 +34,19 @@ setCustomRiders([`
 `])
 
 const KeyframeLR = (function() {
-  const TRAIL_ENABLED = true;
+  const USER_PARAMETERS = {
+    INIT_SPEED: 0, // Initial speed of the car
+    MIN_SPEED: 0, // Minimum car speed
+    MAX_SPEED: 25, // Maximum car speed
+    INIT_ROTATION: 0, // Rotation of the car at the start (degrees)
+    ROTATION_CHANGE: 10, // How fast the car rotates (degrees)
+    INIT_DIRECTION: 0, // Direction that the car is facing at the start (degrees)
+    DIRECTION_CHANGE: 10, // How fast the car turns (degrees)
+    ACCELERATION: 0.125, // How fast the rider speeds up
+    DECELERATION: 0.5, // How fast the rider slows down
+    TRAIL_ENABLED: true, // Whether the trail is enabled
+  }
+
   const ONE_DEGREE = 0.0174532925;
 
   const CONTROLS = {
@@ -46,27 +58,26 @@ const KeyframeLR = (function() {
     ROTATE_RIGHT: {KEY: 'ArrowRight', state: 0}
   };
 
-  const MOVE_STATE = {
-    speed: 10,
-    previousRotation: 0,
-    base_rotation: 0,
-    offset_rotation: 0,
-    turn: 0
+  const MOVE_CONSTS = {
+    ACCELERATION: USER_PARAMETERS.ACCELERATION,
+    DECELERATION: USER_PARAMETERS.DECELERATION,
+    MIN_SPEED: USER_PARAMETERS.MIN_SPEED,
+    MAX_SPEED: USER_PARAMETERS.MAX_SPEED,
+    DELTA_ROTATE: -1 * USER_PARAMETERS.ROTATION_CHANGE * ONE_DEGREE,
+    DELTA_TURN: -1 * USER_PARAMETERS.DIRECTION_CHANGE * ONE_DEGREE
   };
 
-  const MOVE_PARAMS = {
-    ACCELERATION: 0.125,
-    DECELERATION: 0.5,
-    MIN_SPEED: 0,
-    MAX_SPEED: 10,
-    DELTA_ROTATE: -10*ONE_DEGREE,
-    DELTA_TURN: -10*ONE_DEGREE
-  }
+  const MOVE_STATE = {
+    speed: USER_PARAMETERS.INIT_SPEED,
+    base_rotation: USER_PARAMETERS.INIT_ROTATION * ONE_DEGREE,
+    turn: USER_PARAMETERS.INIT_DIRECTION * ONE_DEGREE,
+    previousRotation: 0,
+    offset_rotation: 0
+  };
 
-  const GRAVITY = {
+  const GRAVITY_PROPS = {
     DEFAULT: {x:0, y:0.175},
     ZERO: {x:0, y:0},
-    currentSubframe: -1,
     currentPointIndex: -1
   }
 
@@ -121,16 +132,15 @@ const KeyframeLR = (function() {
   }, false);
 
   Object.defineProperty(window.$ENGINE_PARAMS, "gravity", { get() { try {
-    GRAVITY.currentSubframe += 1;
-    GRAVITY.currentPointIndex = GRAVITY.currentSubframe % 17;
+    GRAVITY_PROPS.currentPointIndex = (GRAVITY_PROPS.currentPointIndex + 1) % 17;
 
     const FRAMES = store.getState().simulator.engine.engine._computed._frames;
     const RIDER_POINTS = FRAMES[FRAMES.length-1].snapshot.entities[0].entities[0].points;
-    const CURRENT_POINT = RIDER_POINTS[GRAVITY.currentPointIndex];
+    const CURRENT_POINT = RIDER_POINTS[GRAVITY_PROPS.currentPointIndex];
 
-    if(CURRENT_POINT.type === 'FlutterPoint') return GRAVITY.DEFAULT;
+    if(CURRENT_POINT.type === 'FlutterPoint') return GRAVITY_PROPS.DEFAULT;
 
-    if(GRAVITY.currentPointIndex === 0) {
+    if(GRAVITY_PROPS.currentPointIndex === 0) {
       const HYPOTONUSE = Math.hypot(CURRENT_POINT.vel.x, CURRENT_POINT.vel.y);
       const PERP_ANGLE = Math.atan2(CURRENT_POINT.vel.y, CURRENT_POINT.vel.x) + Math.PI / 2;
       const NORMAL_VELOCITY = {
@@ -151,7 +161,7 @@ const KeyframeLR = (function() {
         y2: CURRENT_POINT.pos.y - 3.25 * Math.sin(PERP_ANGLE)
       }
       
-      if(TRAIL_ENABLED) {
+      if(USER_PARAMETERS.TRAIL_ENABLED) {
         window.store.dispatch({
           type: "UPDATE_LINES",
           payload: { linesToAdd: [{...VECTOR_A, type: 2}, {...VECTOR_B, type: 2}], initialLoad: false },
@@ -162,27 +172,27 @@ const KeyframeLR = (function() {
       MOVE_STATE.previousRotation = MOVE_STATE.base_rotation + MOVE_STATE.offset_rotation;
       if(CONTROLS.SPEED_UP.state === 1) {
         MOVE_STATE.speed = Math.min(
-          MOVE_PARAMS.MAX_SPEED, MOVE_STATE.speed + MOVE_PARAMS.ACCELERATION
+          MOVE_CONSTS.MAX_SPEED, MOVE_STATE.speed + MOVE_CONSTS.ACCELERATION
         );
       }
       if(CONTROLS.SPEED_DOWN.state === 1) {
         MOVE_STATE.speed = Math.max(
-          MOVE_PARAMS.MIN_SPEED, MOVE_STATE.speed - MOVE_PARAMS.DECELERATION
+          MOVE_CONSTS.MIN_SPEED, MOVE_STATE.speed - MOVE_CONSTS.DECELERATION
         );
       }
       if(CONTROLS.TURN_LEFT.state === 1) {
-        MOVE_STATE.base_rotation += MOVE_PARAMS.DELTA_ROTATE;
-        MOVE_STATE.turn += MOVE_PARAMS.DELTA_TURN;
+        MOVE_STATE.base_rotation += MOVE_CONSTS.DELTA_ROTATE;
+        MOVE_STATE.turn += MOVE_CONSTS.DELTA_TURN;
       }
       if(CONTROLS.TURN_RIGHT.state === 1) {
-        MOVE_STATE.base_rotation -= MOVE_PARAMS.DELTA_ROTATE;
-        MOVE_STATE.turn -= MOVE_PARAMS.DELTA_TURN;
+        MOVE_STATE.base_rotation -= MOVE_CONSTS.DELTA_ROTATE;
+        MOVE_STATE.turn -= MOVE_CONSTS.DELTA_TURN;
       }
       if(CONTROLS.ROTATE_RIGHT.state === 1) {
-        MOVE_STATE.offset_rotation += MOVE_PARAMS.DELTA_ROTATE;
+        MOVE_STATE.offset_rotation += MOVE_CONSTS.DELTA_ROTATE;
       }
       if(CONTROLS.ROTATE_LEFT.state === 1) {
-        MOVE_STATE.offset_rotation -= MOVE_PARAMS.DELTA_ROTATE;
+        MOVE_STATE.offset_rotation -= MOVE_CONSTS.DELTA_ROTATE;
       }
     }
 
@@ -211,7 +221,7 @@ const KeyframeLR = (function() {
     };
 
     return NEW_GRAVITY;
-  } catch(e) { console.error(e); return GRAVITY.ZERO; } }});
+  } catch(e) { console.error(e); return GRAVITY_PROPS.ZERO; } }});
 
   let playerWasRunning = false;
 

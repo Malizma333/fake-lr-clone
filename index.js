@@ -5,7 +5,6 @@ window.store.dispatch({ type: "SET_PLAYER_MAX_INDEX", payload: 0 });
 window.store.dispatch({ type: 'SET_PLAYBACK_DIMENSIONS', payload: {width:1920, height:1080} });
 window.store.dispatch({ type: 'SET_VIEW_OPTION', payload: {key: 'playbackPreview', value: true} });
 window.store.dispatch({ type: 'SET_INTERPOLATE', payload: false });
-getAutoZoom = createZoomer([[0, 3]])
 
 setCustomRiders([`
   .flag{opacity:0;}
@@ -35,6 +34,10 @@ setCustomRiders([`
 
 const KeyframeLR = (function() {
   const USER_PARAMETERS = {
+    INIT_ZOOM: 3.5, // Initial zoom of the camera
+    MIN_ZOOM: 0, // Minimum camera zoom
+    MAX_ZOOM: 5, // Maximum camera zoom
+    ZOOM_CHANGE: 0.1, // How fast camera zooms in and out
     INIT_SPEED: 0, // Initial speed of the car
     MIN_SPEED: 0, // Minimum car speed
     MAX_SPEED: 25, // Maximum car speed
@@ -58,10 +61,15 @@ const KeyframeLR = (function() {
     TURN_LEFT: {KEY: 'a', state: 0},
     TURN_RIGHT: {KEY: 'd', state: 0},
     ROTATE_LEFT: {KEY: 'ArrowLeft', state: 0},
-    ROTATE_RIGHT: {KEY: 'ArrowRight', state: 0}
+    ROTATE_RIGHT: {KEY: 'ArrowRight', state: 0},
+    ZOOM_IN: {KEY: 'ArrowUp', state: 0},
+    ZOOM_OUT: {KEY: 'ArrowDown', state: 0}
   };
 
   const MOVE_CONSTS = {
+    DELTA_ZOOM: USER_PARAMETERS.ZOOM_CHANGE,
+    MIN_ZOOM: USER_PARAMETERS.MIN_ZOOM,
+    MAX_ZOOM: USER_PARAMETERS.MAX_ZOOM,
     ACCELERATION: USER_PARAMETERS.ACCELERATION,
     DECELERATION: USER_PARAMETERS.DECELERATION,
     MIN_SPEED: USER_PARAMETERS.MIN_SPEED,
@@ -73,6 +81,7 @@ const KeyframeLR = (function() {
   };
 
   const MOVE_STATE = {
+    zoom: USER_PARAMETERS.INIT_ZOOM,
     speed: USER_PARAMETERS.INIT_SPEED,
     base_rotation: USER_PARAMETERS.INIT_ROTATION * ONE_DEGREE,
     turn: USER_PARAMETERS.INIT_DIRECTION * ONE_DEGREE,
@@ -106,6 +115,12 @@ const KeyframeLR = (function() {
       case CONTROLS.ROTATE_RIGHT.KEY:
         CONTROLS.ROTATE_RIGHT.state = 1;
         break;
+      case CONTROLS.ZOOM_IN.KEY:
+        CONTROLS.ZOOM_IN.state = 1;
+        break;
+      case CONTROLS.ZOOM_OUT.KEY:
+        CONTROLS.ZOOM_OUT.state = 1;
+        break;
       default:
         break;
     }
@@ -131,6 +146,12 @@ const KeyframeLR = (function() {
       case CONTROLS.ROTATE_RIGHT.KEY:
         CONTROLS.ROTATE_RIGHT.state = 0;
         break;
+      case CONTROLS.ZOOM_IN.KEY:
+        CONTROLS.ZOOM_IN.state = 0;
+        break;
+      case CONTROLS.ZOOM_OUT.KEY:
+        CONTROLS.ZOOM_OUT.state = 0;
+        break;
       default:
         break;
     }
@@ -152,14 +173,13 @@ const KeyframeLR = (function() {
         x: CURRENT_POINT.vel.x / HYPOTONUSE,
         y: CURRENT_POINT.vel.y / HYPOTONUSE
       }
-
-      const VECTOR_A = {
+      const TRAIL_A = {
         x1: CURRENT_POINT.pos.x - 7 * Math.cos(PERP_ANGLE) + 2 * NORMAL_VELOCITY.x,
         y1: CURRENT_POINT.pos.y - 7 * Math.sin(PERP_ANGLE) + 2 * NORMAL_VELOCITY.y,
         x2: CURRENT_POINT.pos.x - 7 * Math.cos(PERP_ANGLE),
         y2: CURRENT_POINT.pos.y - 7 * Math.sin(PERP_ANGLE)
       }
-      const VECTOR_B = {
+      const TRAIL_B = {
         x1: CURRENT_POINT.pos.x - 3.25 * Math.cos(PERP_ANGLE) + 2 * NORMAL_VELOCITY.x,
         y1: CURRENT_POINT.pos.y - 3.25 * Math.sin(PERP_ANGLE) + 2 * NORMAL_VELOCITY.y,
         x2: CURRENT_POINT.pos.x - 3.25 * Math.cos(PERP_ANGLE),
@@ -169,12 +189,13 @@ const KeyframeLR = (function() {
       if(USER_PARAMETERS.TRAIL_ENABLED) {
         window.store.dispatch({
           type: "UPDATE_LINES",
-          payload: { linesToAdd: [{...VECTOR_A, type: 2}, {...VECTOR_B, type: 2}], initialLoad: false },
+          payload: { linesToAdd: [{...TRAIL_A, type: 2}, {...TRAIL_B, type: 2}], initialLoad: false },
           meta: { name: "ADD_LINES" }
         });
       }
 
       MOVE_STATE.previousRotation = MOVE_STATE.base_rotation + MOVE_STATE.offset_rotation;
+      
       if(CONTROLS.SPEED_UP.state === 1) {
         MOVE_STATE.speed = Math.min(
           MOVE_CONSTS.MAX_SPEED, MOVE_STATE.speed + MOVE_CONSTS.ACCELERATION
@@ -203,7 +224,19 @@ const KeyframeLR = (function() {
           MOVE_CONSTS.MIN_ROTATION, MOVE_STATE.offset_rotation - MOVE_CONSTS.DELTA_ROTATE
         );
       }
+      if(CONTROLS.ZOOM_IN.state === 1) {
+        MOVE_STATE.zoom = Math.min(
+          MOVE_CONSTS.MAX_ZOOM, MOVE_STATE.zoom + MOVE_CONSTS.DELTA_ZOOM
+        );
+      }
+      if(CONTROLS.ZOOM_OUT.state === 1) {
+        MOVE_STATE.zoom = Math.max(
+          MOVE_CONSTS.MIN_ZOOM, MOVE_STATE.zoom - MOVE_CONSTS.DELTA_ZOOM
+        );
+      }
     }
+
+    window.store.dispatch({type: "SET_PLAYBACK_ZOOM", payload: Math.pow(2, MOVE_STATE.zoom)});
 
     const ROTATION_CHANGE = MOVE_STATE.base_rotation + MOVE_STATE.offset_rotation - MOVE_STATE.previousRotation;
     const CENTERED_POINT = {

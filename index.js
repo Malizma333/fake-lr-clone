@@ -38,7 +38,15 @@ const FakeLRClone = (function() {
     ROTATE_LEFT_KEY: 'ArrowLeft',
     ROTATE_RIGHT_KEY: 'ArrowRight',
     ZOOM_IN_KEY: 'ArrowUp',
-    ZOOM_OUT_KEY: 'ArrowDown'
+    ZOOM_OUT_KEY: 'ArrowDown',
+    // Keyframes
+    KEYFRAMES_ENABLED: true,
+    KEYFRAME_ARRAY: [
+      [0, {'w': 1}],
+      [40, {}],
+      [80, {'a': 1}],
+      [120, {}]
+    ]
   }
 
   const ONE_DEGREE = 0.0174532925;
@@ -81,7 +89,8 @@ const FakeLRClone = (function() {
   const GRAVITY_PROPS = {
     DEFAULT: {x:0, y:0.175},
     ZERO: {x:0, y:0},
-    currentPointIndex: -1
+    currentPointIndex: -1,
+    currentKeyframeIndex: -1
   }
 
   function resetState() {
@@ -104,6 +113,7 @@ const FakeLRClone = (function() {
     MOVE_STATE.previousRotation = 0;
     MOVE_STATE.offset_rotation = 0;
     GRAVITY_PROPS.currentPointIndex = -1;
+    GRAVITY_PROPS.currentKeyframeIndex = -1;
   }
 
   document.addEventListener('keydown', (event) => {
@@ -190,6 +200,21 @@ const FakeLRClone = (function() {
     const FRAMES = store.getState().simulator.engine.engine._computed._frames;
     const RIDER_POINTS = FRAMES[FRAMES.length-1].snapshot.entities[0].entities[0].points;
     const CURRENT_POINT = RIDER_POINTS[GRAVITY_PROPS.currentPointIndex];
+
+    if(USER_PARAMS.KEYFRAMES_ENABLED &&
+      GRAVITY_PROPS.currentKeyframeIndex + 1 < USER_PARAMS.KEYFRAME_ARRAY.length &&
+      FRAMES.length >= USER_PARAMS.KEYFRAME_ARRAY[GRAVITY_PROPS.currentKeyframeIndex + 1][0]) {
+        GRAVITY_PROPS.currentKeyframeIndex++;
+        const CURRENT_KEYFRAME = USER_PARAMS.KEYFRAME_ARRAY[GRAVITY_PROPS.currentKeyframeIndex][1];
+        CONTROLS.SPEED_UP.state = CURRENT_KEYFRAME[CONTROLS.SPEED_UP.KEY] ? 1 : 0;
+        CONTROLS.SPEED_DOWN.state = CURRENT_KEYFRAME[CONTROLS.SPEED_DOWN.KEY] ? 1 : 0;
+        CONTROLS.TURN_LEFT.state = CURRENT_KEYFRAME[CONTROLS.TURN_LEFT.KEY] ? 1 : 0;
+        CONTROLS.TURN_RIGHT.state = CURRENT_KEYFRAME[CONTROLS.TURN_RIGHT.KEY] ? 1 : 0;
+        CONTROLS.ROTATE_LEFT.state = CURRENT_KEYFRAME[CONTROLS.ROTATE_LEFT.KEY] ? 1 : 0;
+        CONTROLS.ROTATE_RIGHT.state = CURRENT_KEYFRAME[CONTROLS.ROTATE_RIGHT.KEY] ? 1 : 0;
+        CONTROLS.ZOOM_IN.state = CURRENT_KEYFRAME[CONTROLS.ZOOM_IN.KEY] ? 1 : 0;
+        CONTROLS.ZOOM_OUT.state = CURRENT_KEYFRAME[CONTROLS.ZOOM_OUT.KEY] ? 1 : 0;
+    }
 
     if(CURRENT_POINT.type === 'FlutterPoint') return GRAVITY_PROPS.DEFAULT;
 

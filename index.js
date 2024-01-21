@@ -40,6 +40,8 @@ const KeyframeLR = (function() {
     MAX_SPEED: 25, // Maximum car speed
     INIT_ROTATION: 0, // Rotation of the car at the start (degrees)
     ROTATION_CHANGE: 10, // How fast the car rotates (degrees)
+    MIN_ROTATION: -20, // Minimum drift offset from going straight
+    MAX_ROTATION: 20, // Maximum drift offset from going straight
     INIT_DIRECTION: 0, // Direction that the car is facing at the start (degrees)
     DIRECTION_CHANGE: 10, // How fast the car turns (degrees)
     ACCELERATION: 0.125, // How fast the rider speeds up
@@ -48,6 +50,7 @@ const KeyframeLR = (function() {
   }
 
   const ONE_DEGREE = 0.0174532925;
+  const ORIGIN_INDEX = 6;
 
   const CONTROLS = {
     SPEED_UP: {KEY: 'w', state: 0},
@@ -63,8 +66,10 @@ const KeyframeLR = (function() {
     DECELERATION: USER_PARAMETERS.DECELERATION,
     MIN_SPEED: USER_PARAMETERS.MIN_SPEED,
     MAX_SPEED: USER_PARAMETERS.MAX_SPEED,
-    DELTA_ROTATE: -1 * USER_PARAMETERS.ROTATION_CHANGE * ONE_DEGREE,
-    DELTA_TURN: -1 * USER_PARAMETERS.DIRECTION_CHANGE * ONE_DEGREE
+    MIN_ROTATION: USER_PARAMETERS.MIN_ROTATION * ONE_DEGREE,
+    MAX_ROTATION: USER_PARAMETERS.MAX_ROTATION * ONE_DEGREE,
+    DELTA_ROTATE: USER_PARAMETERS.ROTATION_CHANGE * ONE_DEGREE,
+    DELTA_TURN: USER_PARAMETERS.DIRECTION_CHANGE * ONE_DEGREE
   };
 
   const MOVE_STATE = {
@@ -180,34 +185,38 @@ const KeyframeLR = (function() {
           MOVE_CONSTS.MIN_SPEED, MOVE_STATE.speed - MOVE_CONSTS.DECELERATION
         );
       }
-      if(CONTROLS.TURN_LEFT.state === 1) {
+      if(CONTROLS.TURN_RIGHT.state === 1) {
         MOVE_STATE.base_rotation += MOVE_CONSTS.DELTA_ROTATE;
         MOVE_STATE.turn += MOVE_CONSTS.DELTA_TURN;
       }
-      if(CONTROLS.TURN_RIGHT.state === 1) {
+      if(CONTROLS.TURN_LEFT.state === 1) {
         MOVE_STATE.base_rotation -= MOVE_CONSTS.DELTA_ROTATE;
         MOVE_STATE.turn -= MOVE_CONSTS.DELTA_TURN;
       }
       if(CONTROLS.ROTATE_RIGHT.state === 1) {
-        MOVE_STATE.offset_rotation += MOVE_CONSTS.DELTA_ROTATE;
+        MOVE_STATE.offset_rotation = Math.min(
+          MOVE_CONSTS.MAX_ROTATION, MOVE_STATE.offset_rotation + MOVE_CONSTS.DELTA_ROTATE
+        );
       }
       if(CONTROLS.ROTATE_LEFT.state === 1) {
-        MOVE_STATE.offset_rotation -= MOVE_CONSTS.DELTA_ROTATE;
+        MOVE_STATE.offset_rotation = Math.max(
+          MOVE_CONSTS.MIN_ROTATION, MOVE_STATE.offset_rotation - MOVE_CONSTS.DELTA_ROTATE
+        );
       }
     }
 
     const ROTATION_CHANGE = MOVE_STATE.base_rotation + MOVE_STATE.offset_rotation - MOVE_STATE.previousRotation;
     const CENTERED_POINT = {
-      x: CURRENT_POINT.pos.x - RIDER_POINTS[5].pos.x,
-      y: CURRENT_POINT.pos.y - RIDER_POINTS[5].pos.y
+      x: CURRENT_POINT.pos.x - RIDER_POINTS[ORIGIN_INDEX].pos.x,
+      y: CURRENT_POINT.pos.y - RIDER_POINTS[ORIGIN_INDEX].pos.y
     };
     const ROTATED_POINT = {
       x: CENTERED_POINT.x * Math.cos(ROTATION_CHANGE) - CENTERED_POINT.y * Math.sin(ROTATION_CHANGE),
       y: CENTERED_POINT.x * Math.sin(ROTATION_CHANGE) + CENTERED_POINT.y * Math.cos(ROTATION_CHANGE)
     };
     const TRANSFORMED_POINT = {
-      x: ROTATED_POINT.x + RIDER_POINTS[5].pos.x,
-      y: ROTATED_POINT.y + RIDER_POINTS[5].pos.y
+      x: ROTATED_POINT.x + RIDER_POINTS[ORIGIN_INDEX].pos.x,
+      y: ROTATED_POINT.y + RIDER_POINTS[ORIGIN_INDEX].pos.y
     };
 
     const NEW_VELOCITY = {

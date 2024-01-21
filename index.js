@@ -40,7 +40,7 @@ const FakeLRClone = (function() {
     ZOOM_IN_KEY: 'ArrowUp',
     ZOOM_OUT_KEY: 'ArrowDown',
     // Keyframes
-    KEYFRAMES_ENABLED: true,
+    KEYFRAMES_ENABLED: false,
     KEYFRAME_ARRAY: [
       [0, {'w': 1}],
       [40, {}],

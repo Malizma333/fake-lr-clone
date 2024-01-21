@@ -79,6 +79,28 @@ const KeyframeLR = (function() {
     currentPointIndex: -1
   }
 
+  function resetState() {
+    console.log("Resetting...");
+    window.store.dispatch({ type: "SET_PLAYER_STOP_AT_END", payload: false });
+    window.store.dispatch({ type: "SET_PLAYER_MAX_INDEX", payload: 0 });
+    window.store.getState().simulator.engine.engine._computed._frames.length = 1;
+    CONTROLS.SPEED_UP.state = 0;
+    CONTROLS.SPEED_DOWN.state = 0;
+    CONTROLS.TURN_LEFT.state = 0;
+    CONTROLS.TURN_RIGHT.state = 0;
+    CONTROLS.ROTATE_LEFT.state = 0;
+    CONTROLS.ROTATE_RIGHT.state = 0;
+    CONTROLS.ZOOM_IN.state = 0;
+    CONTROLS.ZOOM_OUT.state = 0;
+    MOVE_STATE.zoom = USER_PARAMS.INIT_ZOOM;
+    MOVE_STATE.speed = USER_PARAMS.INIT_SPEED;
+    MOVE_STATE.base_rotation = USER_PARAMS.INIT_ROTATION * ONE_DEGREE;
+    MOVE_STATE.turn = USER_PARAMS.INIT_DIRECTION * ONE_DEGREE;
+    MOVE_STATE.previousRotation = 0;
+    MOVE_STATE.offset_rotation = 0;
+    GRAVITY_PROPS.currentPointIndex = -1;
+  }
+
   document.addEventListener('keydown', (event) => {
     switch(event.key) {
       case CONTROLS.SPEED_UP.KEY:
@@ -303,4 +325,6 @@ const KeyframeLR = (function() {
       }
     }
   );
+
+  return { resetState }
 })();

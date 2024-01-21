@@ -8,3 +8,5 @@ This is a separate branch for car mode, which forms a new sprite from the bosh t
 | Slow Down    | S           |
 | Turn Left    | A           |
 | Turn Right   | D           |
+| Drift Left   | Left Arrow  |
+| Drift Right  | Right Arrow |

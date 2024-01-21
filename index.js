@@ -30,6 +30,7 @@ setCustomRiders([`
   #scarf2{opacity:1;rx:1;fill:black;width:1px;transform:translate(2px,-27.5px);}
   #scarf3{opacity:1;rx:1;fill:black;width:1px;transform:translate(3px,-27.5px);}
   #scarf4{opacity:1;rx:1;fill:black;width:1px;transform:translate(2px,-27.5px);}
+  #scarf5{opacity:0;}
 `])
 
 const KeyframeLR = (function() {

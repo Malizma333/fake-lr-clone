@@ -33,7 +33,7 @@ setCustomRiders([`
 `])
 
 const KeyframeLR = (function() {
-  const USER_PARAMETERS = {
+  const USER_PARAMS = {
     INIT_ZOOM: 3.5, // Initial zoom of the camera
     MIN_ZOOM: 0, // Minimum camera zoom
     MAX_ZOOM: 5, // Maximum camera zoom
@@ -50,41 +50,50 @@ const KeyframeLR = (function() {
     ACCELERATION: 0.125, // How fast the rider speeds up
     DECELERATION: 0.5, // How fast the rider slows down
     TRAIL_ENABLED: true, // Whether the trail is enabled
+    // Keybindings
+    SPEED_UP_KEY: 'w',
+    SPEED_DOWN_KEY: 's',
+    TURN_LEFT_KEY: 'a',
+    TURN_RIGHT_KEY: 'd',
+    ROTATE_LEFT_KEY: 'ArrowLeft',
+    ROTATE_RIGHT_KEY: 'ArrowRight',
+    ZOOM_IN_KEY: 'ArrowUp',
+    ZOOM_OUT_KEY: 'ArrowDown'
   }
 
   const ONE_DEGREE = 0.0174532925;
   const ORIGIN_INDEX = 6;
 
   const CONTROLS = {
-    SPEED_UP: {KEY: 'w', state: 0},
-    SPEED_DOWN: {KEY: 's', state: 0},
-    TURN_LEFT: {KEY: 'a', state: 0},
-    TURN_RIGHT: {KEY: 'd', state: 0},
-    ROTATE_LEFT: {KEY: 'ArrowLeft', state: 0},
-    ROTATE_RIGHT: {KEY: 'ArrowRight', state: 0},
-    ZOOM_IN: {KEY: 'ArrowUp', state: 0},
-    ZOOM_OUT: {KEY: 'ArrowDown', state: 0}
+    SPEED_UP: {KEY: USER_PARAMS.SPEED_UP_KEY, state: 0},
+    SPEED_DOWN: {KEY: USER_PARAMS.SPEED_DOWN_KEY, state: 0},
+    TURN_LEFT: {KEY: USER_PARAMS.TURN_LEFT_KEY, state: 0},
+    TURN_RIGHT: {KEY: USER_PARAMS.TURN_RIGHT_KEY, state: 0},
+    ROTATE_LEFT: {KEY: USER_PARAMS.ROTATE_LEFT_KEY, state: 0},
+    ROTATE_RIGHT: {KEY: USER_PARAMS.ROTATE_RIGHT_KEY, state: 0},
+    ZOOM_IN: {KEY: USER_PARAMS.ZOOM_IN_KEY, state: 0},
+    ZOOM_OUT: {KEY: USER_PARAMS.ZOOM_OUT_KEY, state: 0}
   };
 
   const MOVE_CONSTS = {
-    DELTA_ZOOM: USER_PARAMETERS.ZOOM_CHANGE,
-    MIN_ZOOM: USER_PARAMETERS.MIN_ZOOM,
-    MAX_ZOOM: USER_PARAMETERS.MAX_ZOOM,
-    ACCELERATION: USER_PARAMETERS.ACCELERATION,
-    DECELERATION: USER_PARAMETERS.DECELERATION,
-    MIN_SPEED: USER_PARAMETERS.MIN_SPEED,
-    MAX_SPEED: USER_PARAMETERS.MAX_SPEED,
-    MIN_ROTATION: USER_PARAMETERS.MIN_ROTATION * ONE_DEGREE,
-    MAX_ROTATION: USER_PARAMETERS.MAX_ROTATION * ONE_DEGREE,
-    DELTA_ROTATE: USER_PARAMETERS.ROTATION_CHANGE * ONE_DEGREE,
-    DELTA_TURN: USER_PARAMETERS.DIRECTION_CHANGE * ONE_DEGREE
+    DELTA_ZOOM: USER_PARAMS.ZOOM_CHANGE,
+    MIN_ZOOM: USER_PARAMS.MIN_ZOOM,
+    MAX_ZOOM: USER_PARAMS.MAX_ZOOM,
+    ACCELERATION: USER_PARAMS.ACCELERATION,
+    DECELERATION: USER_PARAMS.DECELERATION,
+    MIN_SPEED: USER_PARAMS.MIN_SPEED,
+    MAX_SPEED: USER_PARAMS.MAX_SPEED,
+    MIN_ROTATION: USER_PARAMS.MIN_ROTATION * ONE_DEGREE,
+    MAX_ROTATION: USER_PARAMS.MAX_ROTATION * ONE_DEGREE,
+    DELTA_ROTATE: USER_PARAMS.ROTATION_CHANGE * ONE_DEGREE,
+    DELTA_TURN: USER_PARAMS.DIRECTION_CHANGE * ONE_DEGREE
   };
 
   const MOVE_STATE = {
-    zoom: USER_PARAMETERS.INIT_ZOOM,
-    speed: USER_PARAMETERS.INIT_SPEED,
-    base_rotation: USER_PARAMETERS.INIT_ROTATION * ONE_DEGREE,
-    turn: USER_PARAMETERS.INIT_DIRECTION * ONE_DEGREE,
+    zoom: USER_PARAMS.INIT_ZOOM,
+    speed: USER_PARAMS.INIT_SPEED,
+    base_rotation: USER_PARAMS.INIT_ROTATION * ONE_DEGREE,
+    turn: USER_PARAMS.INIT_DIRECTION * ONE_DEGREE,
     previousRotation: 0,
     offset_rotation: 0
   };
@@ -186,7 +195,7 @@ const KeyframeLR = (function() {
         y2: CURRENT_POINT.pos.y - 3.25 * Math.sin(PERP_ANGLE)
       }
       
-      if(USER_PARAMETERS.TRAIL_ENABLED) {
+      if(USER_PARAMS.TRAIL_ENABLED) {
         window.store.dispatch({
           type: "UPDATE_LINES",
           payload: { linesToAdd: [{...TRAIL_A, type: 2}, {...TRAIL_B, type: 2}], initialLoad: false },

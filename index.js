@@ -55,6 +55,7 @@ const KeyframeLR = (function() {
     ACCELERATION: 0.125,
     DECELERATION: 0.5,
     MIN_SPEED: 0,
+    MAX_SPEED: 10,
     DELTA_ROTATE: -10*ONE_DEGREE,
     DELTA_TURN: -10*ONE_DEGREE
   }
@@ -145,7 +146,9 @@ const KeyframeLR = (function() {
 
       MOVE_STATE.previousRotation = MOVE_STATE.rotation;
       if(CONTROLS.SPEED_UP.state === 1) {
-        MOVE_STATE.speed += MOVE_PARAMS.ACCELERATION;
+        MOVE_STATE.speed = Math.min(
+          MOVE_PARAMS.MAX_SPEED, MOVE_STATE.speed + MOVE_PARAMS.ACCELERATION
+        );
       }
       if(CONTROLS.SPEED_DOWN.state === 1) {
         MOVE_STATE.speed = Math.max(
